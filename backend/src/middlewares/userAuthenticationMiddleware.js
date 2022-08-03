@@ -1,8 +1,11 @@
 import { stripHtml } from "string-strip-html";
-import connection from '../database/postgres';
+import dayjs from "dayjs";
+import customParseFormat from 'dayjs/plugin/customParseFormat.js';
+import connection from '../database/postgres.js';
 import {signupSchema} from '../schemas/userAuthenticationSchemas.js';
 
 async function signupValidation(req, res, next) {
+    dayjs.extend(customParseFormat);
     try {
         const body = req.body;
 
@@ -60,8 +63,12 @@ async function signupValidation(req, res, next) {
             return res.status(422).send(message);
         }
 
-        const searchEmail = await db.users.findOne({ email: body.email });
-        if (searchEmail) {
+        if(body.createdAt && !dayjs(body.createdAt,'YYYY-MM-DD',true).isValid()){
+            return res.status(422).send("Invalid createdAt date format! Valid format: YYYY-MM-DD");
+        }
+
+        const {rows:searchEmail} = await connection.query(`SELECT email FROM users WHERE email=$1`,[body.email]);
+        if (searchEmail.length>0) {
             return res.status(409).send('Email already registered!');
         }
 
