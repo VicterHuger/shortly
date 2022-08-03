@@ -8,4 +8,9 @@ const signupSchema = joi.object({
     createdAt: joi.date().raw().optional(),
 });
 
-export  {signupSchema};
+const signinSchema = joi.object({
+    email: joi.string().email().max(255).required(),
+    password: joi.string().pattern(/(?=.*?[A-Z])/).pattern(/(?=.*?[a-z])/).pattern(/(?=.*?[0-9])/).pattern(/(?=.*?[#?!@$%^&*-])/).min(8).max(50).required(),
+});
+
+export  {signupSchema,signinSchema};
