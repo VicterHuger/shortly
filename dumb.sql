@@ -27,11 +27,11 @@ CREATE TABLE "userShortUrl" (
 	"id" serial NOT NULL,
 	"userId" int NOT NULL,
 	"shortUrlId" int NOT NULL,
-	"createdAt" DATE NOT NULL DEFAULT now(),
 	CONSTRAINT "userShortUrl_pk" PRIMARY KEY ("id")
 ) WITH (
   OIDS=FALSE
 );
+
 
 
 
