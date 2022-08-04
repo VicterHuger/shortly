@@ -21,6 +21,9 @@ export async function shortUrlCretor(_req,res){
 
 export async function getUrlById(req,res){
     const {id}=req.params;
+    if(!id || typeof(Number(id))!=='number'){
+        return res.status(404).send('Invalid id!')
+    }
     try{
         const {rows:shortUrl} = await connection.query(`
         SELECT id, "shortUrl", url 
@@ -31,5 +34,29 @@ export async function getUrlById(req,res){
     }catch(err){
         console.log(err);
         return res.sendStatus(500);
+    }
+}
+
+export async function openUrlByShortUrl(req,res){
+    const {shortUrl}=req.params;
+    if(!shortUrl) return res.status.send('Invalid shortUrl');
+    try{
+        const {rows:existingShortUrl} = await connection.query(`
+        SELECT url 
+        FROM "shortUrls"
+        WHERE "shortUrl"=$1`,[shortUrl]);
+        
+        if(existingShortUrl.length===0) return res.sendStatus(404);
+
+        const {rowCount}= await connection.query(`
+        UPDATE "shortUrls"
+        SET "visitCount"="visitCount"+1
+        WHERE "shortUrl"=$1`,[shortUrl]);
+        if(rowCount===0) return res.status(500).send('It was not possible to update the visitCount');
+        return res.redirect(`${existingShortUrl[0].url}`);
+        
+    }catch(err){
+        console.log(err);
+        res.sendStatus(500);
     }
 }
