@@ -1,25 +1,25 @@
 import { stripHtml } from "string-strip-html";
-import dayjs from "dayjs";
+// import dayjs from "dayjs";
 import bcrypt from 'bcrypt';
-import customParseFormat from 'dayjs/plugin/customParseFormat.js';
+// import customParseFormat from 'dayjs/plugin/customParseFormat.js';
 import connection from '../database/postgres.js';
 import {signupSchema,signinSchema} from '../schemas/userAuthenticationSchemas.js';
 
 async function signupValidation(req, res, next) {
-    dayjs.extend(customParseFormat);
+    // dayjs.extend(customParseFormat);
     const body = req.body;
     try {
         for(const key of Object.keys(body) ){
             body[key]=stripHtml(body[key]).result.trim();
         };
 
-        const {error} = signupSchema.validate(req.body,{abortEarly:false});
+        const {error} = signupSchema.validate(body,{abortEarly:false});
         
         let message= errorUserAuthValidation(error);
         
-        if(body.createdAt && !dayjs(body.createdAt,'YYYY-MM-DD',true).isValid()){
-            message+="Invalid createdAt date format! Valid format: YYYY-MM-DD";
-        }
+        // if(body.createdAt && !dayjs(body.createdAt,'YYYY-MM-DD',true).isValid()){
+        //     message+="Invalid createdAt date format! Valid format: YYYY-MM-DD";
+        // }
 
         if(message) return res.status(422).send(message);
 
@@ -45,7 +45,7 @@ async function signinValidation(req,res,next){
             body[key]=stripHtml(body[key]).result.trim();
         }
 
-        const {error} = signinSchema.validate(req.body,{abortEarly:false});
+        const {error} = signinSchema.validate(body,{abortEarly:false});
             
         let message= errorUserAuthValidation(error);
     
