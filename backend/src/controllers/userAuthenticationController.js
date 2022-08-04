@@ -1,4 +1,5 @@
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 import connection from "../database/postgres.js";
 
 
@@ -22,4 +23,17 @@ async function signup(_req,res){
     }
 }
 
-export {signup}; 
+async function signin(_req,res){
+    const {id}= res.locals.user;
+    const JWT_SECRET = process.env.JWT_SECRET;
+    
+    try{
+        const token=jwt.sign({id},JWT_SECRET,{expiresIn: 60*60*24*30 });
+        return res.status(200).send({token});
+    }catch(err){
+        console.log(err);
+        return res.sendStatus(500);
+    }
+}
+
+export {signup, signin}; 

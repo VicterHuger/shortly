@@ -1,15 +1,14 @@
 import { stripHtml } from "string-strip-html";
 import dayjs from "dayjs";
+import bcrypt from 'bcrypt';
 import customParseFormat from 'dayjs/plugin/customParseFormat.js';
 import connection from '../database/postgres.js';
-import {signupSchema} from '../schemas/userAuthenticationSchemas.js';
+import {signupSchema,signinSchema} from '../schemas/userAuthenticationSchemas.js';
 
 async function signupValidation(req, res, next) {
     dayjs.extend(customParseFormat);
-    
+    const body = req.body;
     try {
-        const body = req.body;
-
         for(const key of Object.keys(body) ){
             body[key]=stripHtml(body[key]).result.trim();
         };
@@ -36,6 +35,40 @@ async function signupValidation(req, res, next) {
     } catch (err) {
         console.log(err);
         return res.sendStatus(500);
+    }
+}
+
+async function signinValidation(req,res,next){
+    const {body}=req;
+    try{
+        for (const key of Object.keys(body)){
+            body[key]=stripHtml(body[key]).result.trim();
+        }
+
+        const {error} = signinSchema.validate(req.body,{abortEarly:false});
+            
+        let message= errorUserAuthValidation(error);
+    
+        if(message) return res.status(422).send(message);
+
+        const {rows:user} = await connection.query(`
+        SELECT id,password from users WHERE email=$1`,[body.email]);
+
+        if(user.length===0) res.status(401).send('Invalid email or password.');
+
+        const hashCheck = await bcrypt.compare(body.password, user[0].password);
+        if (!hashCheck)  return res.status(401).send('Invalid email or password.');
+
+        delete user[0].password;
+        
+        res.locals.user = user[0]; 
+        
+        next();
+
+
+    }catch(err){
+        console.log(err);
+        res.sendStatus(500);
     }
 }
 
@@ -91,4 +124,4 @@ function errorUserAuthValidation(error){
     return null;
 }
 
-export {signupValidation};
+export {signupValidation, signinValidation};
