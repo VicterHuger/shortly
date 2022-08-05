@@ -5,8 +5,8 @@ export async function tokenValidation(req,res,next){
         const token=req.headers.authorization?.replace('Bearer ','');
         if(!token || token.length===0) return res.sendStatus(401);
         try{
-            const userId=jwt.verify(token, process.env.JWT_SECRET);
-            res.locals.userId=userId.id;
+            const {id}=jwt.verify(token, process.env.JWT_SECRET);
+            res.locals.userId=id;
             next();
         }catch(err){
             console.log(err);

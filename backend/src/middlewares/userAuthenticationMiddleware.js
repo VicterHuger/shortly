@@ -1,12 +1,9 @@
 import { stripHtml } from "string-strip-html";
-// import dayjs from "dayjs";
 import bcrypt from 'bcrypt';
-// import customParseFormat from 'dayjs/plugin/customParseFormat.js';
 import connection from '../database/postgres.js';
 import {signupSchema,signinSchema} from '../schemas/userAuthenticationSchemas.js';
 
 async function signupValidation(req, res, next) {
-    // dayjs.extend(customParseFormat);
     const body = req.body;
     try {
         for(const key of Object.keys(body) ){
@@ -16,10 +13,6 @@ async function signupValidation(req, res, next) {
         const {error} = signupSchema.validate(body,{abortEarly:false});
         
         let message= errorUserAuthValidation(error);
-        
-        // if(body.createdAt && !dayjs(body.createdAt,'YYYY-MM-DD',true).isValid()){
-        //     message+="Invalid createdAt date format! Valid format: YYYY-MM-DD";
-        // }
 
         if(message) return res.status(422).send(message);
 

@@ -1,4 +1,5 @@
 import {nanoid} from 'nanoid';
+import { stripHtml } from 'string-strip-html';
 import connection from '../database/postgres.js';
 
 export async function shortUrlCretor(_req,res){
@@ -20,7 +21,7 @@ export async function shortUrlCretor(_req,res){
 }
 
 export async function getUrlById(req,res){
-    const {id}=req.params;
+    const id=stripHtml(req.params.id).result.trim()||null;
     if(!id || typeof(Number(id))!=='number'){
         return res.status(404).send('Invalid id!')
     }
@@ -38,7 +39,7 @@ export async function getUrlById(req,res){
 }
 
 export async function openUrlByShortUrl(req,res){
-    const {shortUrl}=req.params;
+    const {shortUrl}=stripHtml(req.params.shortUrl).result.trim();
     if(!shortUrl) return res.status.send('Invalid shortUrl');
     try{
         const {rows:existingShortUrl} = await connection.query(`
@@ -58,5 +59,30 @@ export async function openUrlByShortUrl(req,res){
     }catch(err){
         console.log(err);
         res.sendStatus(500);
+    }
+}
+
+export async function deleteShortUrl(_req,res){
+    const {userId}=res.locals;
+    const {idShortUrl}=res.locals;
+    
+    try{
+        const {rows:shortUrlInfo} = await connection.query(`
+        SELECT "userId" 
+        FROM "shortUrls"
+        WHERE id=$1`,[idShortUrl]);
+        
+        if(shortUrlInfo.length===0) return res.sendStatus(404);
+        if(shortUrlInfo[0].userId===userId){
+            const {rowCount} = await connection.query(`
+            DELETE FROM "shortUrls"
+            WHERE id=$1`,[idShortUrl]);
+            if(rowCount===1) return res.sendStatus(204);
+            return res.status(500).send('It was not possible to delete the shortUrl')
+        }
+        return res.sendStatus(401);
+    }catch(err){
+        console.log(err);
+        return res.sendStatus(500);
     }
 }

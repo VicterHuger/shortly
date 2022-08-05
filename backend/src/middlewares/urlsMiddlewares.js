@@ -34,3 +34,15 @@ export async function urlsBodyValidation(req,res,next){
         return res.sendStatus(500);
     }
 }
+
+export async function verifyShortUrlOwner(req,res,next){
+    try{
+        const idShortUrl=stripHtml(req.params.id).result.trim()||null;
+        if(!idShortUrl || typeof(Number(idShortUrl))!=='number') return res.status(404).send('Invalid id'); 
+        res.locals.idShortUrl=idShortUrl;
+        next();
+    }catch(err){
+        console.log(err);
+        res.sendStatus(500);
+    }
+}
