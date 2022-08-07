@@ -200,4 +200,3 @@ ALTER TABLE ONLY public."shortUrls"
 --
 -- PostgreSQL database dump complete
 --
-
