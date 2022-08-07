@@ -1,6 +1,6 @@
 import connection from "../database/postgres.js";
 
-export async function getRanking(req,res){
+export async function getRanking(_req,res){
     try{
         const {rows:ranking} = await connection.query( `
         SELECT u.id, u.name, COUNT(s."shortUrl") AS "linksCount", COALESCE(SUM(s."visitCount"),0) AS "visitCount"
