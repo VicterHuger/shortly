@@ -116,7 +116,10 @@ ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_
 COPY public."shortUrls" (id, "userId", "shortUrl", url, "visitCount", "createdAt") FROM stdin;
 3	2	j0m9_gZMJBRONW1LVZD9U	https://calendar.google.com/calendar/u/0/r?cid=Y19taWI2amIyaW45YzQ3ZDRzdmNubzByMXY2Y0Bncm91cC5jYWxlbmRhci5nb29nbGUuY29t&pli=1	1	2022-08-04
 1	2	VZGC8HQQWVcYyMHvGI4FE	https://bootcampra.notion.site/Materiais-0750a51f86f04626bd2303e9f7c51cd0	2	2022-08-04
-4	1	f0I0akHmHiDrcnJnTCwzC	https://www.figma.com/file/qt7NcrJ4ZOCLbka6Hjar7k/Shortly-(Copy)?node-id=0%3A1	0	2022-08-05
+4	1	f0I0akHmHiDrcnJnTCwzC	https://www.figma.com/file/qt7NcrJ4ZOCLbka6Hjar7k/Shortly-(Copy)?node-id=0%3A1	2	2022-08-05
+7	2	YA8YDHJRkGb6Sjh-F6op3	https://facebook.com	1	2022-08-07
+5	4	IoCW-6Gv3e_ASUmuR88OO	https://www.youtube.com/watch?v=jfKfPfyJRdk	3	2022-08-07
+8	3	zWiL2QnbVDcmvB5Lr_h9t	https://european-union.europa.eu/principles-countries-history/country-profiles/france_en	3	2022-08-07
 \.
 
 
@@ -128,6 +131,15 @@ COPY public.users (id, name, email, password, "createdAt") FROM stdin;
 1	Clarissa Moura	clarismoura@gmail.com	$2b$10$EZJsYVPKRv5/tM0cnJX6/ef931YMpcXcthbA7CL7sKzyZkOeuDAn6	2022-08-04
 2	Victor Hugo Simões	victorugo.vitao@hotmail.com	$2b$10$zirNyylRx8JBRMTsaZ3uveBHop0oRBBPQwKEnQr7PmtcDrhqRdwwa	2022-08-04
 3	Gustavo	gustavo@gmail.com	$2b$10$pVBBEWR4yjluxmvdk2mw6erljDM3cWkJkGn5kUL.55IYevxymosEW	2022-08-06
+4	João Alves	joao_alves@gmail.com	$2b$10$BVs8KCBJUnRQIiOjbx5x9OJ02Ajl/bMOQx7zNLdGrQv5wD6wK4uPm	2022-08-07
+5	Fernando Souza	fernado_souza@gmail.com	$2b$10$lByHkl.vXeQ98t4FqjEuY.6k3V.YfZdrMbNlMc0v157bXLR4xDSZO	2022-08-07
+6	Ingryd Sonza	ingrid_sonza@gmail.com	$2b$10$kj06QrSwn4g6Bxc1eGRZ5uEvO4Z5MfD72gA/lf12dTcY/xyHelGTK	2022-08-07
+7	Mateus Albuquerque	mateus_albuquerque@gmail.com	$2b$10$p9TDAiI6jPbRFkwKTU65GeqY0EYWSq6A4mJt7LkpYw9aim3ND/qca	2022-08-07
+8	Jenifer Teixeira	jenifer_teixeira@gmail.com	$2b$10$9CVOQT3xp4u3YkTvfZNlXO7KxzLiRZKPa0sqc9IMmrWNE2/LUJAP6	2022-08-07
+9	José Martins	jose_martins@gmail.com	$2b$10$2Q5jDnA1DvBpl7fcqYhX.uYWqUofM/qRLFjn9Ne/xHJGblCYIblCG	2022-08-07
+10	Larissa Martins	larissa_martins@gmail.com	$2b$10$4AVLtXCif2eArkmmS0Jf/exRiHOT/01Euoj30S4NqREHTrjrmcbEK	2022-08-07
+11	Vilma da Silva	vilma_silva@gmail.com	$2b$10$honIb5mGVHJlxv9bGdwC/uEPcpBqIiQi81bWwPvGYufpvsVq/MgWC	2022-08-07
+12	Gabriel Ferreira	gabriel_ferreira@gmail.com	$2b$10$zBzwUND9FVzr59ap78dFqe/HDVV8mbIIWvwFU/kKPKMrhpMpGW4C.	2022-08-07
 \.
 
 
@@ -135,14 +147,14 @@ COPY public.users (id, name, email, password, "createdAt") FROM stdin;
 -- Name: shortUrls_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public."shortUrls_id_seq"', 4, true);
+SELECT pg_catalog.setval('public."shortUrls_id_seq"', 8, true);
 
 
 --
 -- Name: users_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.users_id_seq', 3, true);
+SELECT pg_catalog.setval('public.users_id_seq', 12, true);
 
 
 --
