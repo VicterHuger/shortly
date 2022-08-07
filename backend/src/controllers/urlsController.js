@@ -13,7 +13,8 @@ export async function shortUrlCretor(_req,res){
         VALUES
         ($1,$2,$3)`
         ,[userId, shortUrl, url]);
-        if(rowCount===1) return res.sendStatus(201); 
+        if(rowCount===1) return res.status(201).send({shortUrl}); 
+        return res.status(500).send('It was not possible to create a short URL');
     }catch(err){
         console.log(err);
         res.sendStatus(500);
@@ -21,10 +22,7 @@ export async function shortUrlCretor(_req,res){
 }
 
 export async function getUrlById(req,res){
-    const id=stripHtml(req.params.id).result.trim()||null;
-    if(!id || typeof(Number(id))!=='number'){
-        return res.status(404).send('Invalid id!')
-    }
+    const {id}=res.locals;
     try{
         const {rows:shortUrl} = await connection.query(`
         SELECT id, "shortUrl", url 
@@ -39,8 +37,9 @@ export async function getUrlById(req,res){
 }
 
 export async function openUrlByShortUrl(req,res){
-    const {shortUrl}=stripHtml(req.params.shortUrl).result.trim();
-    if(!shortUrl) return res.status.send('Invalid shortUrl');
+    if(typeof(req.params.shortUrl)!=='string') return res.status(404).send('Invalid shortUrl');
+    const shortUrl=stripHtml(req.params.shortUrl)?.result.trim() || null;
+    if(!shortUrl) return res.status(404).send('Invalid shortUrl');
     try{
         const {rows:existingShortUrl} = await connection.query(`
         SELECT url 
@@ -64,13 +63,15 @@ export async function openUrlByShortUrl(req,res){
 
 export async function deleteShortUrl(_req,res){
     const {userId}=res.locals;
-    const {idShortUrl}=res.locals;
-    
+    const idShortUrl=stripHtml(res.locals.id)?.result.trim()||null;
+    if(!idShortUrl || typeof(Number(idShortUrl))!=='number') return res.status(404).send('Invalid id');
     try{
+        
         const {rows:shortUrlInfo} = await connection.query(`
-        SELECT "userId" 
-        FROM "shortUrls"
-        WHERE id=$1`,[idShortUrl]);
+            SELECT "userId" 
+            FROM "shortUrls"
+            WHERE id=$1`,[idShortUrl]
+        );
         
         if(shortUrlInfo.length===0) return res.sendStatus(404);
         if(shortUrlInfo[0].userId===userId){

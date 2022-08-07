@@ -9,7 +9,7 @@ const signupSchema = joi.object({
 
 const signinSchema = joi.object({
     email: joi.string().email().max(255).required(),
-    password: joi.string().pattern(/(?=.*?[A-Z])/).pattern(/(?=.*?[a-z])/).pattern(/(?=.*?[0-9])/).pattern(/(?=.*?[#?!@$%^&*-])/).min(8).required(),
+    password: joi.string().required(),
 });
 
 export  {signupSchema,signinSchema};

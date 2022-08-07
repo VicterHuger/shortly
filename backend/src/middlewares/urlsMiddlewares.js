@@ -35,10 +35,43 @@ export async function urlsBodyValidation(req,res,next){
     }
 }
 
-export async function verifyShortUrlOwner(req,res,next){
+export async function verifyIdIsValid(req,res,next){
     try{
-        const idShortUrl=stripHtml(req.params.id).result.trim()||null;
+        if(typeof(req.params.id)!=='string'){
+            return res.status(404).send('Invalid type of id!');
+        }
+        const id=stripHtml(req.params.id)?.result.trim()||null;
+        if(!id || typeof(Number(id))!=='number'){
+            return res.status(404).send('Invalid id!')
+        }
+        res.locals.id=id;
+        next();
+    }catch(err){
+        console.log(err);
+        res.sendStatus(500);
+    }
+}
+
+export async function verifyShortUrlOwner(_req,res,next){
+    try{
+        const idShortUrl=stripHtml(res.locals.id)?.result.trim()||null;
         if(!idShortUrl || typeof(Number(idShortUrl))!=='number') return res.status(404).send('Invalid id'); 
+
+        const {rows:shortUrlInfo} = await connection.query(`
+        SELECT "userId" 
+        FROM "shortUrls"
+        WHERE id=$1 AND "userId"=$2`,[idShortUrl,]);
+        
+        if(shortUrlInfo.length===0) return res.sendStatus(404);
+        if(shortUrlInfo[0].userId===userId){
+            const {rowCount} = await connection.query(`
+            DELETE FROM "shortUrls"
+            WHERE id=$1`,[idShortUrl]);
+            if(rowCount===1) return res.sendStatus(204);
+            return res.status(500).send('It was not possible to delete the shortUrl')
+        }
+        return res.sendStatus(401);
+
         res.locals.idShortUrl=idShortUrl;
         next();
     }catch(err){
