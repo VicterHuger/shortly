@@ -1,18 +1,13 @@
 import {nanoid} from 'nanoid';
 import { stripHtml } from 'string-strip-html';
-import connection from '../database/postgres.js';
+import { urlsRepository } from '../repositories/urlsRepository.js';
 
-export async function shortUrlCretor(_req,res){
+export async function shortUrlCreator(_req,res){
     const {userId}=res.locals;
     const {url}=res.locals.body;
     try{
         const shortUrl=nanoid();
-        const {rowCount}= await connection.query(`
-        INSERT INTO "shortUrls"
-        ("userId","shortUrl",url)
-        VALUES
-        ($1,$2,$3)`
-        ,[userId, shortUrl, url]);
+        const rowCount= await urlsRepository.insertShortUrl(userId,shortUrl,url);
         if(rowCount===1) return res.status(201).send({shortUrl}); 
         return res.status(500).send('It was not possible to create a short URL');
     }catch(err){
@@ -21,13 +16,10 @@ export async function shortUrlCretor(_req,res){
     }
 }
 
-export async function getUrlById(req,res){
+export async function getUrlById(_req,res){
     const {id}=res.locals;
     try{
-        const {rows:shortUrl} = await connection.query(`
-        SELECT id, "shortUrl", url 
-        FROM "shortUrls"
-        WHERE id=$1`,[id]);
+        const shortUrl = await urlsRepository.selectUrlById(id);
         if(shortUrl.length===0) return res.sendStatus(404);
         return res.status(200).send(shortUrl[0]);
     }catch(err){
@@ -41,17 +33,11 @@ export async function openUrlByShortUrl(req,res){
     const shortUrl=stripHtml(req.params.shortUrl)?.result.trim() || null;
     if(!shortUrl) return res.status(404).send('Invalid shortUrl');
     try{
-        const {rows:existingShortUrl} = await connection.query(`
-        SELECT url 
-        FROM "shortUrls"
-        WHERE "shortUrl"=$1`,[shortUrl]);
+        const existingShortUrl = await urlsRepository.selectShortUrlByShortUrl(shortUrl);
         
         if(existingShortUrl.length===0) return res.sendStatus(404);
 
-        const {rowCount}= await connection.query(`
-        UPDATE "shortUrls"
-        SET "visitCount"="visitCount"+1
-        WHERE "shortUrl"=$1`,[shortUrl]);
+        const rowCount = await urlsRepository.updateVisitCount(shortUrl);
         if(rowCount===0) return res.status(500).send('It was not possible to update the visitCount');
         return res.redirect(`${existingShortUrl[0].url}`);
         
@@ -67,17 +53,11 @@ export async function deleteShortUrl(_req,res){
     if(!idShortUrl || typeof(Number(idShortUrl))!=='number') return res.status(404).send('Invalid id');
     try{
         
-        const {rows:shortUrlInfo} = await connection.query(`
-            SELECT "userId" 
-            FROM "shortUrls"
-            WHERE id=$1`,[idShortUrl]
-        );
+        const shortUrlInfo=await urlsRepository.selectUserIdByShortUrlId(idShortUrl);
         
         if(shortUrlInfo.length===0) return res.sendStatus(404);
         if(shortUrlInfo[0].userId===userId){
-            const {rowCount} = await connection.query(`
-            DELETE FROM "shortUrls"
-            WHERE id=$1`,[idShortUrl]);
+            const rowCount = await urlsRepository.deleteShortUrlById(idShortUrl);
             if(rowCount===1) return res.sendStatus(204);
             return res.status(500).send('It was not possible to delete the shortUrl')
         }

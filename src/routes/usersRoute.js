@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { tokenValidation } from "../middlewares/tokenValidation.js";
-import { statusUserUrls } from "../controllers/userUrls.js"
+import { statusUserUrls } from "../controllers/userUrlsController.js"
 
 const router=Router();
 

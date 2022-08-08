@@ -1,7 +1,7 @@
 import { stripHtml } from "string-strip-html";
 import bcrypt from 'bcrypt';
-import connection from '../database/postgres.js';
 import {signupSchema,signinSchema} from '../schemas/userAuthenticationSchemas.js';
+import {userAuthenticationRepository} from '../repositories/userAuthenticationRepository.js'
 
 async function signupValidation(req, res, next) {
     const body = req.body;
@@ -16,7 +16,8 @@ async function signupValidation(req, res, next) {
 
         if(message) return res.status(422).send(message);
 
-        const {rows:searchEmail} = await connection.query(`SELECT email FROM users WHERE email=$1`,[body.email]);
+        const searchEmail = await userAuthenticationRepository.userEmailValidation(body.email);
+
         if (searchEmail.length>0) {
             return res.status(409).send('Email already registered!');
         }
@@ -44,10 +45,9 @@ async function signinValidation(req,res,next){
     
         if(message) return res.status(422).send(message);
 
-        const {rows:user} = await connection.query(`
-        SELECT id,password from users WHERE email=$1`,[body.email]);
+        const user = await userAuthenticationRepository.userEmailValidation(body.email);
 
-        if(user.length===0) res.status(401).send('Invalid email or password.');
+        if(user.length===0) return res.status(401).send('Invalid email or password.');
 
         const hashCheck = await bcrypt.compare(body.password, user[0].password);
         if (!hashCheck)  return res.status(401).send('Invalid email or password.');

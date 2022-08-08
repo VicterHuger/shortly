@@ -1,15 +1,8 @@
-import connection from "../database/postgres.js";
+import { rankingRepository } from "../repositories/rankingRepository.js";
 
 export async function getRanking(_req,res){
     try{
-        const {rows:ranking} = await connection.query( `
-        SELECT u.id, u.name, COUNT(s."shortUrl") AS "linksCount", COALESCE(SUM(s."visitCount"),0) AS "visitCount"
-        FROM users u
-        LEFT JOIN "shortUrls" s
-        ON u.id=s."userId"
-        GROUP BY u.id
-        ORDER BY "visitCount" DESC ,"linksCount" DESC
-        LIMIT 10`);
+        const ranking = await rankingRepository.generateRanking();
         if(ranking.length===0) return res.sendStatus(204);
         return res.status(200).send(ranking);
     }catch(err){

@@ -1,6 +1,6 @@
 import { stripHtml } from "string-strip-html";
-import connection from "../database/postgres.js";
 import { urlsBodySchema } from "../schemas/urlsBody.js";
+import { urlsRepository } from "../repositories/urlsRepository.js";
 
 
 export async function urlsBodyValidation(req,res,next){
@@ -20,9 +20,8 @@ export async function urlsBodyValidation(req,res,next){
             return res.status(422).send(message);
         }
         
-        const {rows:urlRegistered}= await connection.query(`
-        SELECT id FROM "shortUrls"
-        WHERE url=$1 AND "userId"=$2`,[body.url,userId]);
+        const urlRegistered = await urlsRepository.getUrlByUser(body.url,userId);
+
         if(urlRegistered.length>0) return res.status(404).send('You have already registered a shortUrl to this url!');
 
         res.locals.body=body;
@@ -45,34 +44,6 @@ export async function verifyIdIsValid(req,res,next){
             return res.status(404).send('Invalid id!')
         }
         res.locals.id=id;
-        next();
-    }catch(err){
-        console.log(err);
-        res.sendStatus(500);
-    }
-}
-
-export async function verifyShortUrlOwner(_req,res,next){
-    try{
-        const idShortUrl=stripHtml(res.locals.id)?.result.trim()||null;
-        if(!idShortUrl || typeof(Number(idShortUrl))!=='number') return res.status(404).send('Invalid id'); 
-
-        const {rows:shortUrlInfo} = await connection.query(`
-        SELECT "userId" 
-        FROM "shortUrls"
-        WHERE id=$1 AND "userId"=$2`,[idShortUrl,]);
-        
-        if(shortUrlInfo.length===0) return res.sendStatus(404);
-        if(shortUrlInfo[0].userId===userId){
-            const {rowCount} = await connection.query(`
-            DELETE FROM "shortUrls"
-            WHERE id=$1`,[idShortUrl]);
-            if(rowCount===1) return res.sendStatus(204);
-            return res.status(500).send('It was not possible to delete the shortUrl')
-        }
-        return res.sendStatus(401);
-
-        res.locals.idShortUrl=idShortUrl;
         next();
     }catch(err){
         console.log(err);
